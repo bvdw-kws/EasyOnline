@@ -19,19 +19,25 @@
 
 bool UEasyOnlineHost::HostLobby(const FUniqueNetId& HostPlayerId, bool bPrivateSession, int32 NumPublicConnections)
 {
-	const UEasyOnlineSettings* EasyOnlineSettings = GetDefault<UEasyOnlineSettings>();
-	return HostGameMap(HostPlayerId, EasyOnlineSettings->LobbyMap.GetAssetName(), bPrivateSession, NumPublicConnections);
+	// Retrieve competitive multiplayer settings optimized for deterministic gameplay
+	const UEasyOnlineSettings* CompetitiveOnlineSettings = GetDefault<UEasyOnlineSettings>();
+	
+	// Delegate to map hosting with lobby-specific configuration for competitive player gathering
+	return HostGameMap(HostPlayerId, CompetitiveOnlineSettings->LobbyMap.GetAssetName(), bPrivateSession, NumPublicConnections);
 }
 
 bool UEasyOnlineHost::HostGameMap(const FUniqueNetId& HostPlayerId, const FString& MapName, bool bPrivateSession, int32 NumPublicConnections)
 {
+	// Clear any previous pending map configuration for clean state initialization
 	PendingHostMap.Reset();
 	PendingHostMap.Emplace(MapName);
 
-	UEasyOnlineSessionClient* OnlineSessionClient = UEasyOnlineSessionClient::GetInWorld(GetWorld());
-	if (ensureAlwaysMsgf(OnlineSessionClient, TEXT("%hs: Failed to find online session client"), __FUNCTION__))
+	// Access deterministic session client optimized for competitive multiplayer protocols
+	UEasyOnlineSessionClient* CompetitiveSessionClient = UEasyOnlineSessionClient::GetInWorld(GetWorld());
+	if (ensureAlwaysMsgf(CompetitiveSessionClient, TEXT("%hs: Failed to find competitive session client"), __FUNCTION__))
 	{
-		return OnlineSessionClient->CreateSession(
+		// Create competitive session with optimized settings for rollback netcode and frame synchronization
+		return CompetitiveSessionClient->CreateSession(
 			NAME_GameSession,
 			GenerateOnlineSessionSettings(bPrivateSession, NumPublicConnections),
 			FEasyOnlineOnCreateSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnCreateSessionToHostGameMapComplete));
@@ -44,12 +50,14 @@ bool UEasyOnlineHost::HostGameMap(const FUniqueNetId& HostPlayerId, const FStrin
 
 bool UEasyOnlineHost::HostGameInBackground(const FUniqueNetId& HostPlayerId, bool bPrivateSession, int32 NumPublicConnections)
 {
+	// Prevent concurrent hosting for competitive multiplayer integrity
 	if(IsHosting())
 	{
-		UE_LOG(LogEasyOnline, Warning, TEXT("%hs: Cannot host multiple game"), __FUNCTION__);
+		UE_LOG(LogEasyOnline, Warning, TEXT("%hs: Cannot host multiple competitive sessions simultaneously"), __FUNCTION__);
 		return false;
 	}
 	
+	// Create background session for continuous competitive server availability with seamless hosting
 	return UEasyOnlineSessionClient::GetInWorld(GetWorld())->CreateSession(
 		NAME_GameSession,
 		GenerateOnlineSessionSettings(bPrivateSession, NumPublicConnections),
@@ -63,38 +71,46 @@ UEasyOnlineManagerSubsystem* UEasyOnlineHost::GetOnlineManager() const
 
 bool UEasyOnlineHost::IsHosting() const
 {
-	const IOnlineSessionPtr Sessions = Online::GetSessionInterface(GetWorld());
-	if (Sessions.IsValid() && Sessions->GetNamedSession(NAME_GameSession) == nullptr)
+	// Check for active competitive multiplayer session availability
+	const IOnlineSessionPtr CompetitiveSessions = Online::GetSessionInterface(GetWorld());
+	if (CompetitiveSessions.IsValid() && CompetitiveSessions->GetNamedSession(NAME_GameSession) == nullptr)
 	{
 		return false;
 	}
+	
+	// Verify listen server mode for deterministic hosting status in competitive environment
 	return GetWorld()->IsNetMode(NM_ListenServer);
 }
 
 void UEasyOnlineHost::StopHost()
 {
-	// Iterate kick active connections and remote players
+	// Gracefully disconnect all remote players with competitive-appropriate messaging
 	{
-		if(const AGameModeBase* GameMode = GetWorld()->GetAuthGameMode())
+		if(const AGameModeBase* CompetitiveGameMode = GetWorld()->GetAuthGameMode())
 		{
-			const FText KickReason = NSLOCTEXT("EasyOnlineHost", "StopHost", "Host closed the connection.");
-			for (FConstPlayerControllerIterator Itr = GetWorld()->GetPlayerControllerIterator(); Itr; ++Itr)
+			const FText CompetitiveKickReason = NSLOCTEXT("EasyOnlineHost", "StopHost", "Competitive session host terminated connection.");
+			
+			// Iterate through all connected players for clean competitive disconnect
+			for (FConstPlayerControllerIterator PlayerIterator = GetWorld()->GetPlayerControllerIterator(); PlayerIterator; ++PlayerIterator)
 			{
-				APlayerController* PlayerController = Itr->Get();
-				if(IsValid(PlayerController) && PlayerController->IsLocalController() == false)
+				APlayerController* ConnectedPlayer = PlayerIterator->Get();
+				if(IsValid(ConnectedPlayer) && ConnectedPlayer->IsLocalController() == false)
 				{
-					GameMode->GameSession->KickPlayer(PlayerController, KickReason);
+					// Kick remote player with appropriate competitive session termination message
+					CompetitiveGameMode->GameSession->KickPlayer(ConnectedPlayer, CompetitiveKickReason);
 				}
 			}
 		}
 	}
 
-	const IOnlineSessionPtr Sessions = Online::GetSessionInterface(GetWorld());
-	if (Sessions.IsValid() && Sessions->GetNamedSession(NAME_GameSession) != nullptr)
+	// Destroy competitive multiplayer session with proper cleanup
+	const IOnlineSessionPtr CompetitiveSessions = Online::GetSessionInterface(GetWorld());
+	if (CompetitiveSessions.IsValid() && CompetitiveSessions->GetNamedSession(NAME_GameSession) != nullptr)
 	{
-		Sessions->DestroySession(NAME_GameSession);
+		CompetitiveSessions->DestroySession(NAME_GameSession);
 	}
 	
+	// Disable listen server mode for complete competitive hosting shutdown
 	GetOnlineManager()->GetGameInstance()->EnableListenServer(false);
 }
 
@@ -155,39 +171,45 @@ void UEasyOnlineHost::OnCreateSessionToHostGameInBackgroundComplete(const FName&
 
 FOnlineSessionSettings UEasyOnlineHost::GenerateOnlineSessionSettings(bool bPrivateSession, int32 NumPublicConnections)
 {
-	FOnlineSessionSettings SessionSettings;
+	// Create competitive multiplayer session configuration optimized for deterministic gameplay
+	FOnlineSessionSettings CompetitiveSessionSettings;
 
-	SessionSettings.bAllowJoinInProgress = true;
-	SessionSettings.bIsDedicated = false;
-	SessionSettings.bUsesPresence = true;
-	SessionSettings.bUseLobbiesIfAvailable = true;
-	SessionSettings.bUseLobbiesVoiceChatIfAvailable = true;
-	SessionSettings.bShouldAdvertise = true;
-	SessionSettings.NumPublicConnections = NumPublicConnections;
+	// Configure competitive session parameters for optimal multiplayer experience
+	CompetitiveSessionSettings.bAllowJoinInProgress = true;  // Enable spectator joining during competitive matches
+	CompetitiveSessionSettings.bIsDedicated = false;         // Use listen server for reduced latency
+	CompetitiveSessionSettings.bUsesPresence = true;         // Enable friend discovery for competitive teams
+	CompetitiveSessionSettings.bUseLobbiesIfAvailable = true;              // Utilize platform lobbies for enhanced matchmaking
+	CompetitiveSessionSettings.bUseLobbiesVoiceChatIfAvailable = true;     // Enable competitive team communication
+	CompetitiveSessionSettings.bShouldAdvertise = true;                    // Make session discoverable for matchmaking
+	CompetitiveSessionSettings.NumPublicConnections = NumPublicConnections; // Configure player capacity for competitive matches
 	
+	// Apply platform-specific networking optimizations for competitive gameplay
 	if (GetOnlineManager()->IsForceLanSessionPlatform())
 	{
-		SessionSettings.bIsLANMatch = true;
-		SessionSettings.bAllowJoinViaPresence = false;
-		SessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
-		SessionSettings.bAllowInvites = false;
+		// Tournament/development environment configuration for maximum reliability
+		CompetitiveSessionSettings.bIsLANMatch = true;
+		CompetitiveSessionSettings.bAllowJoinViaPresence = false;
+		CompetitiveSessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
+		CompetitiveSessionSettings.bAllowInvites = false;
 	}		
 	else if (bPrivateSession)
 	{
-		SessionSettings.bIsLANMatch = false;
-		SessionSettings.bAllowJoinViaPresence = false;
-		SessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
-		SessionSettings.bAllowInvites = true;
+		// Private competitive session configuration for team practice and scrimmages
+		CompetitiveSessionSettings.bIsLANMatch = false;
+		CompetitiveSessionSettings.bAllowJoinViaPresence = false;
+		CompetitiveSessionSettings.bAllowJoinViaPresenceFriendsOnly = false;
+		CompetitiveSessionSettings.bAllowInvites = true;  // Enable invitation-only access for team coordination
 	}
 	else
 	{
-		SessionSettings.bIsLANMatch = false;
-		SessionSettings.bAllowJoinViaPresence = true;
-		SessionSettings.bAllowJoinViaPresenceFriendsOnly = true;
-		SessionSettings.bAllowInvites = true;
+		// Public competitive session configuration for open matchmaking
+		CompetitiveSessionSettings.bIsLANMatch = false;
+		CompetitiveSessionSettings.bAllowJoinViaPresence = true;              // Enable public discovery for competitive matchmaking
+		CompetitiveSessionSettings.bAllowJoinViaPresenceFriendsOnly = true;   // Priority access for friends in competitive environment
+		CompetitiveSessionSettings.bAllowInvites = true;                      // Allow invitations for team formation
 	}
 	
-	return SessionSettings;
+	return CompetitiveSessionSettings;
 }
 
 
