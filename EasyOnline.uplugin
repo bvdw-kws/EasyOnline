@@ -1,0 +1,57 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Easy Online",
+	"Description": "Tools to easily create and join a lobby",
+	"Category": "Online",
+	"CreatedBy": "Van de Walle Bastien",
+	"CreatedByURL": "",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"EnabledByDefault" : true,
+	"Modules": [
+		{
+			"Name": "EasyOnline",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "EasyDataTransferModule",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+        {
+          "Name": "EasyGauntletTest",
+          "Type": "Runtime",
+          "LoadingPhase": "Default"
+        },
+		{
+			"Name" : "EasyOnlineTest",
+			"Type" : "UncookedOnly",
+			"LoadingPhase" : "PreDefault"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "OnlineFramework",
+			"Enabled": true
+		},
+		{
+			"Name": "ExtendedCommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "ModularGameplay",
+			"Enabled": true
+		},
+        {
+          "Name": "Gauntlet",
+          "Enabled": true
+        }
+	]
+}
