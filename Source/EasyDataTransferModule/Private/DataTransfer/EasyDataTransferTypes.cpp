@@ -10,7 +10,9 @@
 #include "DataTransfer/Utils/EasyDataTransferValidation.h"
 #include "Engine/World.h"
 #include "Misc/Compression.h"
+#if WITH_EDITOR || UE_BUILD_DEBUG || UE_BUILD_DEVELOPMENT
 #include "Misc/CRC.h"
+#endif
 
 void FEasyDataTransferOptions::ApplyDefaults(const UEasyDataTransferSettings* GlobalSettings)
 {
