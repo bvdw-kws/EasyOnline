@@ -10,6 +10,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Gauntlet/EasyGauntletController.h"
 
 FEasyQuickHostState::FEasyQuickHostState(UEasyGauntletController* InController, float InTimeout, const FString& InMapName)
 	: FEasyGauntletState(InController)

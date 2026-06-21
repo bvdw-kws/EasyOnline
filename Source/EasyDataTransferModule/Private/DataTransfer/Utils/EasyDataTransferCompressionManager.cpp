@@ -9,6 +9,7 @@
 #include "DataTransfer/Utils/EasyDataTransferChunkProcessor.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "DataTransfer/Components/EasyDataTransferPlayerComponent.h"
 
 
 FEasyDataTransferCompressionManager::FEasyDataTransferCompressionManager(UEasyDataTransferSubsystem& InSubsystem)

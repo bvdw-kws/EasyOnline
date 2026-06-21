@@ -11,6 +11,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Gauntlet/EasyGauntletController.h"
 
 FEasyWaitForHostValidationState::FEasyWaitForHostValidationState(UEasyGauntletController* InController, float InTimeout)
 	: FEasyGauntletState(InController)

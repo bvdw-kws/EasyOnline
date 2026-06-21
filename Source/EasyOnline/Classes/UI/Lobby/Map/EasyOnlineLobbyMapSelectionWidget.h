@@ -35,9 +35,9 @@ protected:
 	TObjectPtr<class UExtendedCommonHierarchicalScrollBoxListWidget> ExtendedCommonHierarchicalScrollBoxListWidget_List;
 
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TArray<UEasyOnlineMapAsset*> SortedMapAssets;
+	TArray<class UEasyOnlineMapAsset*> SortedMapAssets;
 	UPROPERTY(Transient, BlueprintReadOnly)
-	TArray<FExtendedCommonListWidgetItem> MapListItems;
+	TArray<struct FExtendedCommonListWidgetItem> MapListItems;
 	
 	UFUNCTION()
 	void OnSelectItem(int32 ItemIndex);

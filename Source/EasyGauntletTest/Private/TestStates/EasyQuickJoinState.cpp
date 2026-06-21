@@ -10,6 +10,7 @@
 #include "Interfaces/OnlineSessionInterface.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
+#include "Gauntlet/EasyGauntletController.h"
 
 FEasyQuickJoinState::FEasyQuickJoinState(UEasyGauntletController* InController, float InTimeout, int32 InMaxRetries, float InRetryInterval)
 	: FEasyGauntletState(InController)
