@@ -32,7 +32,7 @@ typedef FEasyOnlineOnQuickSessionJoinFailed::FDelegate FEasyOnlineOnQuickSession
  * - Frame-synchronization aware connection establishment
  * - Automatic friend session prioritization for competitive play
  * - Resilient connection handling with reconnection support
- * - MassStep ECS state synchronization during join process
+ * - Recall ECS state synchronization during join process
  */
 UCLASS(Within=EasyOnlineManagerSubsystem)
 class EASYONLINE_API UEasyOnlineQuickJoin : public UObject

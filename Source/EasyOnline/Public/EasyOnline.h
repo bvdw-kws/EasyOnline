@@ -16,7 +16,7 @@
  * 
  * Core Features:
  * - Deterministic session management for competitive multiplayer integrity
- * - MassStep ECS integration for rollback netcode compatibility  
+ * - Recall ECS integration for rollback netcode compatibility  
  * - Intelligent matchmaking with latency-aware session discovery
  * - Enhanced friend system with competitive priority algorithms
  * - Advanced spectator mode and reconnection handling

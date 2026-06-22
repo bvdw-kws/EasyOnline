@@ -194,7 +194,7 @@ void FEasyDataTransferChunkProcessor::SendChunkAcknowledgment(FEasyDataTransferS
 	       TEXT("%hs: Sending acknowledgment for chunk %d/%d of transfer %u"), 
 	       __FUNCTION__, Chunk.ChunkIndex + 1, Chunk.TotalChunks, TransferState->Handle);
 	
-	// Always send acknowledgment to server in MassStep restore scenario
+	// Always send acknowledgment to server in Recall restore scenario
 	const bool bToServer = true;
 	
 	// Send via the receiver's component

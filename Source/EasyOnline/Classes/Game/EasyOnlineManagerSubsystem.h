@@ -27,7 +27,7 @@ class UEasyOnlineSessionInvitationManager;
  * - Deterministic session lifecycle management for competitive gaming
  * - Frame-synchronized networking protocol coordination
  * - Real-time connection quality monitoring and optimization
- * - MassStep ECS integration for rollback netcode compatibility
+ * - Recall ECS integration for rollback netcode compatibility
  * - Advanced friend system with competitive matchmaking priorities
  * - Session invitation management with spectator mode support
  * - Network failure recovery with seamless reconnection handling
@@ -47,7 +47,7 @@ public:
 
 	/** 
 	 * Initializes competitive multiplayer networking infrastructure.
-	 * Establishes deterministic protocols and MassStep ECS integration for rollback support.
+	 * Establishes deterministic protocols and Recall ECS integration for rollback support.
 	 */
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 

@@ -15,14 +15,14 @@
  * EasyOnline Host Controller
  * 
  * Specialized hosting system designed for competitive multiplayer games with deterministic rollback netcode.
- * Provides frame-perfect session management, state synchronization, and optimized networking for MassStep ECS integration.
+ * Provides frame-perfect session management, state synchronization, and optimized networking for Recall ECS integration.
  * 
  * Key Features:
  * - Deterministic session creation with frame-based synchronization
  * - Enhanced session settings for competitive gameplay balance
  * - Optimized for low-latency multiplayer with rollback support
  * - Integrated spectator mode and reconnection handling
- * - MassStep ECS-aware networking protocols
+ * - Recall ECS-aware networking protocols
  */
 UCLASS()
 class EASYONLINE_API UEasyOnlineHost : public UObject
@@ -33,7 +33,7 @@ public:
 	/** 
 	 * Creates deterministic lobby session with competitive multiplayer settings.
 	 * Establishes frame-synchronized environment for player gathering and match configuration.
-	 * Optimized for low-latency communication and MassStep ECS state management.
+	 * Optimized for low-latency communication and Recall ECS state management.
 	 */
 	bool HostLobby(const FUniqueNetId& HostPlayerId, bool bPrivateSession, int32 NumPublicConnections);
 	
@@ -67,7 +67,7 @@ public:
 	/**
 	 * Generates optimized session configuration for competitive multiplayer gameplay.
 	 * Creates settings tailored for low-latency, frame-synchronized gaming experiences.
-	 * Includes rollback netcode optimizations and MassStep ECS networking parameters.
+	 * Includes rollback netcode optimizations and Recall ECS networking parameters.
 	 */
 	FOnlineSessionSettings GenerateOnlineSessionSettings(bool bPrivateSession, int32 NumPublicConnections);
 	
