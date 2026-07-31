@@ -14,17 +14,21 @@ public class EasyGauntletTest : ModuleRules
 		CppStandard = CppStandardVersion.Default;
 		DefaultBuildSettings = BuildSettingsVersion.Latest;
 
-		PublicDependencyModuleNames.AddRange(new string[] 
-		{ 
-			"Core", 
-			"CoreUObject", 
-			"Engine", 
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core",
+			"CoreUObject",
+			"Engine",
 			"InputCore",
 			"Gauntlet",
 			"EasyOnline",
-			"EasyDataTransferModule",
-			"AutomationController"
+			"EasyDataTransferModule"
 		});
+
+		if (Target.Configuration != UnrealTargetConfiguration.Shipping)
+		{
+			PublicDependencyModuleNames.Add("AutomationController");
+		}
 
 		PrivateDependencyModuleNames.AddRange(new string[] 
 		{
