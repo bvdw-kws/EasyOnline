@@ -59,10 +59,4 @@ public:
 	 * @return True if decompression parameters are valid
 	 */
 	static bool ValidateDecompressionParameters(const TArray<uint8>& CompressedData, int32 UncompressedSize, const TCHAR* Context = TEXT(""));
-
-private:
-	/**
-	 * Get the log category for validation messages.
-	 */
-	static const struct FLogCategoryBase& GetLogCategory();
 };
