@@ -155,9 +155,9 @@ FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
 
 	OptionsString += FString::Printf(TEXT("?NumBots=%d"), NumBots);
 
-	for (const FString& Option : MapAsset->MapData.OptionsString)
+	for (const TPair<FString, FString>& Option : MapAsset->MapData.Options)
 	{
-		OptionsString += FString::Printf(TEXT("?%s"), *Option);
+		OptionsString += FString::Printf(TEXT("?%s=%s"), *Option.Key, *Option.Value);
 	}
 
 	const TSoftClassPtr<AEasyOnlineGameMode_InGame> GameModeClass = GetGameModeSoftClass(WorldContextObject, GameModeID);

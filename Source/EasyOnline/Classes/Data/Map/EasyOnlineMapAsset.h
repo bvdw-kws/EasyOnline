@@ -53,10 +53,11 @@ struct EASYONLINE_API FEasyOnlineMapData
 	TSoftObjectPtr<UDataTable> PreloadAsset;
 	
 	/**
-	 * Options to be passed when opening this map.
+	 * Options to be passed when opening this map, appended to the travel URL as "?Key=Value"
+	 * (e.g. Key="GameEditorMap", Value="Puzzle_001" becomes "?GameEditorMap=Puzzle_001").
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TArray<FString> OptionsString;
+	TMap<FString, FString> Options;
 };
 
 UCLASS()
