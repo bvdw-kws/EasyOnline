@@ -14,11 +14,12 @@ public class EasyOnline : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { 
+		PublicDependencyModuleNames.AddRange(new string[] {
 			"Engine",
 			"CommonGame",
 			"ModularGameplay",
 			"EasyDataTransferModule", // Add EasyDataTransferModule dependency
+			"GameplayTags",
 		});
 		
 		PrivateDependencyModuleNames.AddRange(new string[] {

@@ -101,6 +101,22 @@ TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetAllMap
 	return Results;
 }
 
+TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAssetsWithTag(FGameplayTag Tag) const
+{
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> Results;
+	for (const TPair<FName, TObjectPtr<const UEasyOnlineMapAsset>>& MapAssetPair : MapAssetMap)
+	{
+		if (const UEasyOnlineMapAsset* MapAsset = MapAssetPair.Value)
+		{
+			if (MapAsset->MapTags.HasTag(Tag))
+			{
+				Results.Add(MapAssetPair.Value);
+			}
+		}
+	}
+	return Results;
+}
+
 bool UEasyOnlineMapSubsystem::HasLoadedMapAssets() const
 {
 	return MapAssetPaths.Num() == MapAssetMap.Num();

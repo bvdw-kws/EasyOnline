@@ -202,8 +202,9 @@ void AEasyOnlineGameState_Lobby::OnTimerCountdownDecreased()
 		{
 			const FName& MapID = GetLobbyModeComponentChecked()->GetMapID();
 			const FName& GameModeID = GetLobbyModeComponentChecked()->GetGameModeID();
-			
-			const FString MapURL = UEasyOnlineFunctionLibrary::GetMapURL(this, MapID, GameModeID);
+
+			const UEasyOnlineMapAsset* MapAsset = UEasyOnlineFunctionLibrary::GetMapAsset(this, MapID);
+			const FString MapURL = UEasyOnlineFunctionLibrary::GetMapURL(this, MapAsset, GameModeID);
 			if (ensureAlwaysMsgf(!MapURL.IsEmpty(),
 				TEXT("%hs Invalid map: %s"), __FUNCTION__, *MapID.ToString()))
 			{				

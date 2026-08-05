@@ -7,6 +7,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "EasyOnlineFunctionLibrary.generated.h"
@@ -28,6 +29,9 @@ public:
 	static TArray<UEasyOnlineMapAsset*> GetSortedMapAssets(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static TArray<UEasyOnlineMapAsset*> GetSortedMapAssetsWithTag(const UObject* WorldContextObject, FGameplayTag Tag);
+
+	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static UEasyOnlineMapAsset* GetMapAsset(const UObject* WorldContextObject, FName MapID);
 		
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
@@ -44,7 +48,14 @@ public:
 	
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static FString GetMapURL(const UObject* WorldContextObject,
-		const FName& MapID, const FName& GameModeID, bool bListenServer = true, int32 NumBots = 0);
+		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer = true, int32 NumBots = 0);
+
+	// Directly opens MapAsset via UGameplayStatics::OpenLevel, using the same URL/options building as
+	// GetMapURL. Intended for local/single-player travel (e.g. Puzzle mode) that doesn't need a hosted
+	// online session; use UEasyOnlineHost::HostGameMap (via CreateLobby/QuickHost) for that instead.
+	UFUNCTION(BlueprintCallable, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static void OpenMap(const UObject* WorldContextObject,
+		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID = NAME_None, bool bListenServer = false, int32 NumBots = 0);
 
 	UFUNCTION(BlueprintCallable, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static void CreateLobby(const UObject* WorldContextObject, APlayerController* HostingPlayer, bool bPrivateSession);

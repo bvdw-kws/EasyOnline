@@ -58,6 +58,28 @@ TArray<UEasyOnlineMapAsset*> UEasyOnlineFunctionLibrary::GetSortedMapAssets(
 	return Results;
 }
 
+TArray<UEasyOnlineMapAsset*> UEasyOnlineFunctionLibrary::GetSortedMapAssetsWithTag(
+	const UObject* WorldContextObject, FGameplayTag Tag)
+{
+	const UWorld* World = IsValid(WorldContextObject) ? WorldContextObject->GetWorld() : nullptr;
+	const UEasyOnlineMapSubsystem& MapSubsystem = UEasyOnlineMapSubsystem::GetRef(World);
+	const TArray<TObjectPtr<const UEasyOnlineMapAsset>> MapAssets = MapSubsystem.GetMapAssetsWithTag(Tag);
+
+	TArray<UEasyOnlineMapAsset*> Results;
+	Algo::Transform(MapAssets, Results, [](const TObjectPtr<const UEasyOnlineMapAsset>& MapAsset)
+	{
+		return const_cast<UEasyOnlineMapAsset*>(MapAsset.Get());
+	});
+
+	Results.Sort([](
+		const UEasyOnlineMapAsset& lMapAsset, const UEasyOnlineMapAsset& rMapAsset)
+	{
+		return lMapAsset.MenuSortOrder >= rMapAsset.MenuSortOrder;
+	});
+
+	return Results;
+}
+
 UEasyOnlineMapAsset* UEasyOnlineFunctionLibrary::GetMapAsset(const UObject* WorldContextObject, FName MapID)
 {
 	const UWorld* World = IsValid(WorldContextObject) ? WorldContextObject->GetWorld() : nullptr;
@@ -131,15 +153,14 @@ TSoftClassPtr<AEasyOnlineGameMode_InGame> UEasyOnlineFunctionLibrary::GetGameMod
 }
 
 FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
-                                              const FName& MapID, const FName& GameModeID, bool bListenServer, int32 NumBots)
+                                              const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots)
 {
-	const UEasyOnlineMapAsset* MapAsset = GetMapAsset(WorldContextObject, MapID);
 	if (!ensureAlwaysMsgf(IsValid(MapAsset),
-		TEXT("%hs Invalid map asset: %s"), __FUNCTION__, *MapID.ToString()))
+		TEXT("%hs Invalid map asset"), __FUNCTION__))
 	{
 		return FString();
 	}
-	
+
 	if (!ensureAlwaysMsgf(!MapAsset->MapData.Map.IsNull(),
 		TEXT("%hs Null map: %s"), __FUNCTION__, *MapAsset->GetPathName()))
 	{
@@ -170,6 +191,19 @@ FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
 	const FString MapURL = FString::Printf(TEXT("%s%s"), *MapName, *OptionsString);
 
 	return MapURL;
+}
+
+void UEasyOnlineFunctionLibrary::OpenMap(const UObject* WorldContextObject,
+	const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots)
+{
+	const FString MapURL = GetMapURL(WorldContextObject, MapAsset, GameModeID, bListenServer, NumBots);
+	if (!ensureAlwaysMsgf(!MapURL.IsEmpty(),
+		TEXT("%hs Invalid map: %s"), __FUNCTION__, MapAsset ? *MapAsset->GetPathName() : TEXT("None")))
+	{
+		return;
+	}
+
+	UGameplayStatics::OpenLevel(WorldContextObject, FName(*MapURL));
 }
 
 void UEasyOnlineFunctionLibrary::CreateLobby(const UObject* WorldContextObject,

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Engine/DataAsset.h"
+#include "GameplayTagContainer.h"
 
 #include "EasyOnlineMapAsset.generated.h"
 
@@ -84,6 +85,13 @@ public:
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FEasyOnlineMapData MapData;
+
+	/**
+	 * Tags used to categorize/filter this map (e.g. by game mode). See EasyOnlineMapTypes.h
+	 * for sample tags; games built on this plugin should declare their own tags under "Map".
+	 */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, AssetRegistrySearchable, meta = (GameplayTagFilter = "Map"))
+	FGameplayTagContainer MapTags;
 	
 public:
 	static const FPrimaryAssetType AssetType;

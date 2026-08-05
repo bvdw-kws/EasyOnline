@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "GameplayTagContainer.h"
 #include "OnlineDelegateMacros.h"
 
 #include "EasyOnlineMapSubsystem.generated.h"
@@ -27,6 +28,7 @@ public:
 public:
 	TObjectPtr<const UEasyOnlineMapAsset> GetMapAsset(const FName& MapID) const;
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetAllMapAssets() const;
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithTag(FGameplayTag Tag) const;
 
 	bool HasLoadedMapAssets() const;
 	
