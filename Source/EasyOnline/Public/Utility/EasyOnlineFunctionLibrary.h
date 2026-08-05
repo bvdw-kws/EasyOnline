@@ -46,16 +46,54 @@ public:
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static TSoftClassPtr<AEasyOnlineGameMode_InGame> GetGameModeSoftClass(const UObject* WorldContextObject, FName GameModeID);
 	
+	// Builds the travel URL for MapAsset: its own MapData.Options plus ExtraOptions
+	// (already-formed URL options, e.g. built via AddOption/AddNumBotsOption below).
+	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static FString GetMapURLWithExtraOptions(const UObject* WorldContextObject,
+		const UEasyOnlineMapAsset* MapAsset, const FString& ExtraOptions = FString());
+
+	// Convenience overload of GetMapURLWithExtraOptions that also builds the listen/NumBots/game
+	// options for you.
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static FString GetMapURL(const UObject* WorldContextObject,
-		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer = true, int32 NumBots = 0);
+		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer = true, int32 NumBots = 0,
+		const FString& ExtraOptions = FString());
 
 	// Directly opens MapAsset via UGameplayStatics::OpenLevel, using the same URL/options building as
-	// GetMapURL. Intended for local/single-player travel (e.g. Puzzle mode) that doesn't need a hosted
-	// online session; use UEasyOnlineHost::HostGameMap (via CreateLobby/QuickHost) for that instead.
+	// GetMapURLWithExtraOptions. Intended for local/single-player travel (e.g. Puzzle mode) that doesn't
+	// need a hosted online session; use UEasyOnlineHost::HostGameMap (via CreateLobby/QuickHost) for that
+	// instead. ExtraOptions is appended verbatim to the travel URL (build it with AddOption/
+	// AddNumBotsOption/etc, e.g. AddOption(Options, TEXT("GameEditor"), TEXT("false"))).
+	UFUNCTION(BlueprintCallable, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static void OpenMapWithExtraOptions(const UObject* WorldContextObject,
+		const UEasyOnlineMapAsset* MapAsset, const FString& ExtraOptions = FString());
+
+	// Convenience overload of OpenMapWithExtraOptions that also builds the listen/NumBots/game options
+	// for you.
 	UFUNCTION(BlueprintCallable, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static void OpenMap(const UObject* WorldContextObject,
-		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID = NAME_None, bool bListenServer = false, int32 NumBots = 0);
+		const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID = NAME_None, bool bListenServer = false, int32 NumBots = 0,
+		const FString& ExtraOptions = FString());
+
+	// URL-options helpers, for building an ExtraOptions string to pass to GetMapURLWithExtraOptions/
+	// OpenMapWithExtraOptions piece by piece.
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options")
+	static void AddOption(UPARAM(ref) FString& Options, const FString& Key, const FString& Value);
+
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options")
+	static void AddBoolOption(UPARAM(ref) FString& Options, const FString& Key, bool bValue);
+
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options")
+	static void AddFlagOption(UPARAM(ref) FString& Options, const FString& Flag);
+
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options")
+	static void AddListenServerOption(UPARAM(ref) FString& Options);
+
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options")
+	static void AddNumBotsOption(UPARAM(ref) FString& Options, int32 NumBots);
+
+	UFUNCTION(BlueprintCallable, Category="EasyOnline|Options", meta=(WorldContext="WorldContextObject"))
+	static void AddGameModeOption(const UObject* WorldContextObject, UPARAM(ref) FString& Options, FName GameModeID);
 
 	UFUNCTION(BlueprintCallable, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static void CreateLobby(const UObject* WorldContextObject, APlayerController* HostingPlayer, bool bPrivateSession);

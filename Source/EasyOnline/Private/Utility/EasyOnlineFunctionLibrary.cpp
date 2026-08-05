@@ -11,15 +11,18 @@
 #include "Data/Map/EasyOnlineMapAsset.h"
 #include "Data/Subsystems/EasyOnlineGameModeSubsystem.h"
 #include "Data/Subsystems/EasyOnlineMapSubsystem.h"
+#include "Engine/GameInstance.h"
+#include "Engine/LocalPlayer.h"
+#include "Engine/World.h"
 #include "Game/EasyOnlineManagerSubsystem.h"
+#include "Game/EasyOnlineTypes.h"
 #include "Game/InGame/EasyOnlineGameMode_InGame.h"
 #include "Game/Online/EasyOnlineHost.h"
 #include "Game/Online/EasyOnlineQuickJoin.h"
+#include "Interfaces/OnlineSessionInterface.h"
+#include "OnlineSubsystem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Settings/EasyOnlineSettings.h"
-#include "OnlineSubsystem.h"
-#include "Interfaces/OnlineSessionInterface.h"
-#include "Game/EasyOnlineTypes.h"
 
 FName UEasyOnlineFunctionLibrary::GetDefaultMapID(const UObject* WorldContextObject)
 {
@@ -152,8 +155,8 @@ TSoftClassPtr<AEasyOnlineGameMode_InGame> UEasyOnlineFunctionLibrary::GetGameMod
 	return nullptr;
 }
 
-FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
-                                              const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots)
+FString UEasyOnlineFunctionLibrary::GetMapURLWithExtraOptions(const UObject* WorldContextObject,
+                                              const UEasyOnlineMapAsset* MapAsset, const FString& ExtraOptions)
 {
 	if (!ensureAlwaysMsgf(IsValid(MapAsset),
 		TEXT("%hs Invalid map asset"), __FUNCTION__))
@@ -169,34 +172,42 @@ FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
 
 	FString OptionsString;
 
-	if (bListenServer)
-	{
-		OptionsString += FString::Printf(TEXT("?listen"));
-	}
-
-	OptionsString += FString::Printf(TEXT("?NumBots=%d"), NumBots);
-
 	for (const TPair<FString, FString>& Option : MapAsset->MapData.Options)
 	{
-		OptionsString += FString::Printf(TEXT("?%s=%s"), *Option.Key, *Option.Value);
+		AddOption(OptionsString, Option.Key, Option.Value);
 	}
 
-	const TSoftClassPtr<AEasyOnlineGameMode_InGame> GameModeClass = GetGameModeSoftClass(WorldContextObject, GameModeID);
-	if (!GameModeClass.IsNull())
-	{
-		OptionsString += FString::Printf(TEXT("?game=%s"), *GameModeClass->GetPathName());
-	}
-	
+	OptionsString += ExtraOptions;
+
 	const FString MapName = MapAsset->MapData.Map.GetAssetName();
 	const FString MapURL = FString::Printf(TEXT("%s%s"), *MapName, *OptionsString);
 
 	return MapURL;
 }
 
-void UEasyOnlineFunctionLibrary::OpenMap(const UObject* WorldContextObject,
-	const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots)
+FString UEasyOnlineFunctionLibrary::GetMapURL(const UObject* WorldContextObject,
+                                              const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots,
+                                              const FString& ExtraOptions)
 {
-	const FString MapURL = GetMapURL(WorldContextObject, MapAsset, GameModeID, bListenServer, NumBots);
+	FString OptionsString;
+
+	if (bListenServer)
+	{
+		AddListenServerOption(OptionsString);
+	}
+
+	AddNumBotsOption(OptionsString, NumBots);
+	AddGameModeOption(WorldContextObject, OptionsString, GameModeID);
+
+	OptionsString += ExtraOptions;
+
+	return GetMapURLWithExtraOptions(WorldContextObject, MapAsset, OptionsString);
+}
+
+void UEasyOnlineFunctionLibrary::OpenMapWithExtraOptions(const UObject* WorldContextObject,
+	const UEasyOnlineMapAsset* MapAsset, const FString& ExtraOptions)
+{
+	const FString MapURL = GetMapURLWithExtraOptions(WorldContextObject, MapAsset, ExtraOptions);
 	if (!ensureAlwaysMsgf(!MapURL.IsEmpty(),
 		TEXT("%hs Invalid map: %s"), __FUNCTION__, MapAsset ? *MapAsset->GetPathName() : TEXT("None")))
 	{
@@ -204,6 +215,54 @@ void UEasyOnlineFunctionLibrary::OpenMap(const UObject* WorldContextObject,
 	}
 
 	UGameplayStatics::OpenLevel(WorldContextObject, FName(*MapURL));
+}
+
+void UEasyOnlineFunctionLibrary::OpenMap(const UObject* WorldContextObject,
+	const UEasyOnlineMapAsset* MapAsset, const FName& GameModeID, bool bListenServer, int32 NumBots,
+	const FString& ExtraOptions)
+{
+	const FString MapURL = GetMapURL(WorldContextObject, MapAsset, GameModeID, bListenServer, NumBots, ExtraOptions);
+	if (!ensureAlwaysMsgf(!MapURL.IsEmpty(),
+		TEXT("%hs Invalid map: %s"), __FUNCTION__, MapAsset ? *MapAsset->GetPathName() : TEXT("None")))
+	{
+		return;
+	}
+
+	UGameplayStatics::OpenLevel(WorldContextObject, FName(*MapURL));
+}
+
+void UEasyOnlineFunctionLibrary::AddOption(FString& Options, const FString& Key, const FString& Value)
+{
+	Options += FString::Printf(TEXT("?%s=%s"), *Key, *Value);
+}
+
+void UEasyOnlineFunctionLibrary::AddBoolOption(FString& Options, const FString& Key, bool bValue)
+{
+	AddOption(Options, Key, bValue ? TEXT("true") : TEXT("false"));
+}
+
+void UEasyOnlineFunctionLibrary::AddFlagOption(FString& Options, const FString& Flag)
+{
+	Options += FString::Printf(TEXT("?%s"), *Flag);
+}
+
+void UEasyOnlineFunctionLibrary::AddListenServerOption(FString& Options)
+{
+	AddFlagOption(Options, TEXT("listen"));
+}
+
+void UEasyOnlineFunctionLibrary::AddNumBotsOption(FString& Options, int32 NumBots)
+{
+	AddOption(Options, TEXT("NumBots"), FString::FromInt(NumBots));
+}
+
+void UEasyOnlineFunctionLibrary::AddGameModeOption(const UObject* WorldContextObject, FString& Options, FName GameModeID)
+{
+	const TSoftClassPtr<AEasyOnlineGameMode_InGame> GameModeClass = GetGameModeSoftClass(WorldContextObject, GameModeID);
+	if (!GameModeClass.IsNull())
+	{
+		AddOption(Options, TEXT("game"), GameModeClass->GetPathName());
+	}
 }
 
 void UEasyOnlineFunctionLibrary::CreateLobby(const UObject* WorldContextObject,
