@@ -29,6 +29,7 @@ public:
 	TObjectPtr<const UEasyOnlineMapAsset> GetMapAsset(const FName& MapID) const;
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetAllMapAssets() const;
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithTag(FGameplayTag Tag) const;
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithAllTags(const FGameplayTagContainer& Tags) const;
 
 	bool HasLoadedMapAssets() const;
 	

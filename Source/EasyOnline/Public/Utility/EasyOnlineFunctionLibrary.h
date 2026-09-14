@@ -12,6 +12,11 @@
 
 #include "EasyOnlineFunctionLibrary.generated.h"
 
+// URL option key carrying the MapID of the map being opened, so the running level can later
+// resolve UEasyOnlineFunctionLibrary::GetCurrentMapAsset. Written automatically by
+// GetMapURLWithExtraOptions.
+#define MAP_URL_OPTION_KEY "Map"
+
 class AEasyOnlineGameMode_InGame;
 class UEasyOnlineGameModeAsset;
 class UEasyOnlineMapAsset;
@@ -33,7 +38,17 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static UEasyOnlineMapAsset* GetMapAsset(const UObject* WorldContextObject, FName MapID);
-		
+
+	// Reads back the MapID travel URL option written automatically by GetMapURLWithExtraOptions.
+	// Returns NAME_None if the current level wasn't opened through this library (no Map option).
+	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static FName GetCurrentMapID(const UObject* WorldContextObject);
+
+	// Resolves the UEasyOnlineMapAsset for the currently loaded level, via GetCurrentMapID.
+	// Returns nullptr if there is no current MapID or it isn't registered.
+	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
+	static UEasyOnlineMapAsset* GetCurrentMapAsset(const UObject* WorldContextObject);
+
 	UFUNCTION(BlueprintPure, Category="EasyOnline", meta=(WorldContext="WorldContextObject", UnsafeDuringActorConstruction="true"))
 	static FName GetDefaultGameModeID(const UObject* WorldContextObject);
 	

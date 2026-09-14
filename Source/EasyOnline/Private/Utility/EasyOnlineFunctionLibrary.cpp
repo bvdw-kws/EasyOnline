@@ -91,9 +91,37 @@ UEasyOnlineMapAsset* UEasyOnlineFunctionLibrary::GetMapAsset(const UObject* Worl
 		return nullptr;
 	}
 	
-	const UEasyOnlineMapSubsystem& MapSubsystem = UEasyOnlineMapSubsystem::GetRef(World);	
+	const UEasyOnlineMapSubsystem& MapSubsystem = UEasyOnlineMapSubsystem::GetRef(World);
 	const TObjectPtr<const UEasyOnlineMapAsset> MapAsset = MapSubsystem.GetMapAsset(MapID);
 	return const_cast<UEasyOnlineMapAsset*>(MapAsset.Get());
+}
+
+FName UEasyOnlineFunctionLibrary::GetCurrentMapID(const UObject* WorldContextObject)
+{
+	const UWorld* World = IsValid(WorldContextObject) ? WorldContextObject->GetWorld() : nullptr;
+	if (!IsValid(World))
+	{
+		return NAME_None;
+	}
+
+	const FString MapIDOption = World->URL.GetOption(TEXT(MAP_URL_OPTION_KEY "="), TEXT(""));
+	if (MapIDOption.IsEmpty())
+	{
+		return NAME_None;
+	}
+
+	return FName(*MapIDOption);
+}
+
+UEasyOnlineMapAsset* UEasyOnlineFunctionLibrary::GetCurrentMapAsset(const UObject* WorldContextObject)
+{
+	const FName MapID = GetCurrentMapID(WorldContextObject);
+	if (MapID.IsNone())
+	{
+		return nullptr;
+	}
+
+	return GetMapAsset(WorldContextObject, MapID);
 }
 
 FName UEasyOnlineFunctionLibrary::GetDefaultGameModeID(const UObject* WorldContextObject)
@@ -171,6 +199,8 @@ FString UEasyOnlineFunctionLibrary::GetMapURLWithExtraOptions(const UObject* Wor
 	}
 
 	FString OptionsString;
+
+	AddOption(OptionsString, TEXT(MAP_URL_OPTION_KEY), MapAsset->MapID.ToString());
 
 	for (const TPair<FString, FString>& Option : MapAsset->MapData.Options)
 	{
