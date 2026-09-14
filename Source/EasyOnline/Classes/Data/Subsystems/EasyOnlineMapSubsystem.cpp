@@ -94,14 +94,29 @@ TObjectPtr<const UEasyOnlineMapAsset> UEasyOnlineMapSubsystem::GetMapAsset(const
 	return nullptr;
 }
 
-TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetAllMapAssets() const
+namespace
+{
+	void SortMapAssetsByMenuOrder(TArray<TObjectPtr<const UEasyOnlineMapAsset>>& MapAssets)
+	{
+		MapAssets.Sort([](const UEasyOnlineMapAsset& A, const UEasyOnlineMapAsset& B)
+		{
+			return A.MenuSortOrder < B.MenuSortOrder;
+		});
+	}
+}
+
+TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetAllMapAssets(bool bSortByMenuOrder) const
 {
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> Results;
-	MapAssetMap.GenerateValueArray(Results);	
+	MapAssetMap.GenerateValueArray(Results);
+	if (bSortByMenuOrder)
+	{
+		SortMapAssetsByMenuOrder(Results);
+	}
 	return Results;
 }
 
-TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAssetsWithTag(FGameplayTag Tag) const
+TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAssetsWithTag(FGameplayTag Tag, bool bSortByMenuOrder) const
 {
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> Results;
 	for (const TPair<FName, TObjectPtr<const UEasyOnlineMapAsset>>& MapAssetPair : MapAssetMap)
@@ -114,10 +129,14 @@ TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAss
 			}
 		}
 	}
+	if (bSortByMenuOrder)
+	{
+		SortMapAssetsByMenuOrder(Results);
+	}
 	return Results;
 }
 
-TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAssetsWithAllTags(const FGameplayTagContainer& Tags) const
+TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAssetsWithAllTags(const FGameplayTagContainer& Tags, bool bSortByMenuOrder) const
 {
 	TArray<TObjectPtr<const UEasyOnlineMapAsset>> Results;
 	for (const TPair<FName, TObjectPtr<const UEasyOnlineMapAsset>>& MapAssetPair : MapAssetMap)
@@ -129,6 +148,10 @@ TArray<TObjectPtr<const UEasyOnlineMapAsset>> UEasyOnlineMapSubsystem::GetMapAss
 				Results.Add(MapAssetPair.Value);
 			}
 		}
+	}
+	if (bSortByMenuOrder)
+	{
+		SortMapAssetsByMenuOrder(Results);
 	}
 	return Results;
 }

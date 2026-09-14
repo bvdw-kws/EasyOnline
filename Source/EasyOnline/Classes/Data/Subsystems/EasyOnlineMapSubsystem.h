@@ -27,9 +27,9 @@ public:
 
 public:
 	TObjectPtr<const UEasyOnlineMapAsset> GetMapAsset(const FName& MapID) const;
-	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetAllMapAssets() const;
-	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithTag(FGameplayTag Tag) const;
-	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithAllTags(const FGameplayTagContainer& Tags) const;
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetAllMapAssets(bool bSortByMenuOrder = false) const;
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithTag(FGameplayTag Tag, bool bSortByMenuOrder = false) const;
+	TArray<TObjectPtr<const UEasyOnlineMapAsset>> GetMapAssetsWithAllTags(const FGameplayTagContainer& Tags, bool bSortByMenuOrder = false) const;
 
 	bool HasLoadedMapAssets() const;
 	
