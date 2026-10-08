@@ -43,7 +43,7 @@ public:
 	/**
 	 * Default map used when quick hosting.
 	 */
-	UPROPERTY(EditAnywhere, config, Category=Lobby, meta=(AllowedClasses="/Script/Engine.World"))
+	UPROPERTY(EditAnywhere, config, Category=Lobby, meta=(AllowedClasses="/Script/EasyOnline.EasyOnlineMapAsset"))
 	FSoftObjectPath QuickHostMap;
 
 	UPROPERTY(EditAnywhere, config, Category=Lobby)

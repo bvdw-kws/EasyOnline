@@ -397,9 +397,22 @@ void UEasyOnlineFunctionLibrary::QuickHost(const UObject* WorldContextObject, AP
 	}
 	
 	const UEasyOnlineSettings* EasyOnlineSettings = GetDefault<UEasyOnlineSettings>();
+	const UEasyOnlineMapAsset* QuickHostMapAsset = Cast<UEasyOnlineMapAsset>(EasyOnlineSettings->QuickHostMap.TryLoad());
+	if (!ensureAlwaysMsgf(IsValid(QuickHostMapAsset),
+		TEXT("%hs Invalid QuickHostMap asset"), __FUNCTION__))
+	{
+		return;
+	}
+
+	const FString QuickHostMapURL = GetMapURLWithExtraOptions(WorldContextObject, QuickHostMapAsset);
+	if (QuickHostMapURL.IsEmpty())
+	{
+		return;
+	}
+
 	if (HostManager->HostGameMap(
 		*HostingPlayer->GetLocalPlayer()->GetPreferredUniqueNetId().GetUniqueNetId(),
-		EasyOnlineSettings->QuickHostMap.GetAssetName(), bPrivateSession, EasyOnlineSettings->NumPublicConnections))
+		QuickHostMapURL, bPrivateSession, EasyOnlineSettings->NumPublicConnections))
 	{
 		// TODO: Open dialog window (and register to delegates)
 	}
